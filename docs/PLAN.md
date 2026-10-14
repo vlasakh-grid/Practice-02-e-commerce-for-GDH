@@ -366,7 +366,7 @@ There is no ordering yet.
 
 ## Stage 3 — Checkout API, order submission, request-lifecycle docs
 
-Status: ⬜ Not started
+Status: ✅ Done
 
 **Result:**
 - `POST /api/checkout` validates the cart and returns `{ orderId, total }`;
@@ -377,7 +377,7 @@ Status: ⬜ Not started
 
 ### Tasks
 
-- [ ] 1. Create `src/app/api/checkout/route.ts`:
+- [x] 1. Create `src/app/api/checkout/route.ts`:
   ```ts
   import { calculateTotal, findProduct, type CartItem } from "@/lib/pricing";
 
@@ -433,7 +433,7 @@ Status: ⬜ Not started
   }
   ```
 
-- [ ] 2. Extend `src/app/checkout/page.tsx`, keeping all stage 2 behavior:
+- [x] 2. Extend `src/app/checkout/page.tsx`, keeping all stage 2 behavior:
   - add `import type { CheckoutRequest, CheckoutSuccess, CheckoutError } from "@/app/api/checkout/route";`
   - new state:
     - `submitting: boolean`;
@@ -450,7 +450,7 @@ Status: ⬜ Not started
   - on success, show a `<div className="card">` with "Order placed", the order ID, and `` `Total: $${order.total.toFixed(2)}` ``;
   - on failure, show `<p className="error">{submitError}</p>`.
 
-- [ ] 3. `README.md`:
+- [x] 3. `README.md`:
   - document `POST /api/checkout`: request body, the 200 response, the 400 response and all error messages;
   - add a **"Request lifecycle"** section as a numbered list:
     1. the user clicks "Place order" on `/checkout`;
@@ -465,17 +465,17 @@ Status: ⬜ Not started
 
 Run with `npm run dev` running. Use `curl -s -w '\n%{http_code}\n' -X POST http://localhost:3000/api/checkout -H 'Content-Type: application/json' -d '<body>'`:
 
-- [ ] Body `{"items":[{"productId":"sticker","quantity":3},{"productId":"mug","quantity":1}]}` → `200`, `total` is `27.47`, `orderId` is a UUID.
-- [ ] Body `{"items":[]}` → `400` `items must be a non-empty array`.
-- [ ] Body `{"items":[{"productId":"nope","quantity":1}]}` → `400` `Unknown product: nope`.
-- [ ] Body `{"items":[{"productId":"mug","quantity":0}]}` → `400` `quantity must be an integer of at least 1`.
-- [ ] Body `{"items":[{"productId":"mug","quantity":1.5}]}` → `400` `quantity must be an integer of at least 1`.
-- [ ] Body `not json` → `400` `Request body must be valid JSON`.
-- [ ] `npm run build` exits 0.
-- [ ] `npm run test:ci` passes.
-- [ ] `git diff --stat src/lib/pricing.ts` is empty.
-- [ ] `requirements-check` skill in full mode reports 0 ❌ and 0 ⏳.
-- [ ] Dev server stopped. (In the handoff, "Next stage" is "None — project complete".)
+- [x] Body `{"items":[{"productId":"sticker","quantity":3},{"productId":"mug","quantity":1}]}` → `200`, `total` is `27.47`, `orderId` is a UUID.
+- [x] Body `{"items":[]}` → `400` `items must be a non-empty array`.
+- [x] Body `{"items":[{"productId":"nope","quantity":1}]}` → `400` `Unknown product: nope`.
+- [x] Body `{"items":[{"productId":"mug","quantity":0}]}` → `400` `quantity must be an integer of at least 1`.
+- [x] Body `{"items":[{"productId":"mug","quantity":1.5}]}` → `400` `quantity must be an integer of at least 1`.
+- [x] Body `not json` → `400` `Request body must be valid JSON`.
+- [x] `npm run build` exits 0.
+- [x] `npm run test:ci` passes.
+- [x] `git diff --stat src/lib/pricing.ts` is empty.
+- [x] `requirements-check` skill in full mode reports 0 ❌ and 0 ⏳.
+- [x] Dev server stopped. (In the handoff, "Next stage" is "None — project complete".)
 
 **Manual check for the user:**
 1. Open `/checkout`, set Sticker pack = 3 and Coffee mug = 1, click "Place order". You should see "Order placed" and Total $27.47.
