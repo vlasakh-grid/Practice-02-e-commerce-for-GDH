@@ -21,3 +21,17 @@ Then open http://localhost:3000.
 - `npm run dev` — start the development server.
 - `npm run build` — create a production build.
 - `npm run test:ci` — run the unit tests once with Vitest.
+
+## API
+
+### `GET /api/products`
+
+Returns the product catalog as a JSON array. Prices are in dollars.
+
+```json
+[
+  { "id": "tshirt", "name": "T-shirt", "price": 19.99 },
+  { "id": "mug", "name": "Coffee mug", "price": 12.5 },
+  { "id": "sticker", "name": "Sticker pack", "price": 4.99 }
+]
+```

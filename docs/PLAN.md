@@ -311,7 +311,7 @@ Status: ✅ Done
 
 ## Stage 2 — Product catalog API and product selection
 
-Status: ⬜ Not started
+Status: ✅ Done
 
 **Result:**
 - `GET /api/products` returns the catalog;
@@ -323,7 +323,7 @@ There is no ordering yet.
 
 ### Tasks
 
-- [ ] 1. Create `src/app/api/products/route.ts`:
+- [x] 1. Create `src/app/api/products/route.ts`:
   ```ts
   import { PRODUCTS } from "@/lib/pricing";
 
@@ -332,7 +332,7 @@ There is no ordering yet.
   }
   ```
 
-- [ ] 2. Replace `src/app/checkout/page.tsx` with a client component:
+- [x] 2. Replace `src/app/checkout/page.tsx` with a client component:
   - first line: `"use client";`
   - `import type { Product } from "@/lib/pricing";` (type only — do not import `PRODUCTS` into the client);
   - state:
@@ -348,17 +348,17 @@ There is no ordering yet.
     - otherwise, one `<div className="card">` per product with the name, the price as `` `$${product.price.toFixed(2)}` ``, and a `<label>` wrapping `<input type="number" min={0} step={1}>` bound to `quantities[product.id] ?? 0`;
   - on input change, sanitize with `Math.max(0, Math.floor(Number(value) || 0))`.
 
-- [ ] 3. `README.md`: add an "API" section documenting `GET /api/products` with an example response.
+- [x] 3. `README.md`: add an "API" section documenting `GET /api/products` with an example response.
 
 ### Acceptance checks
 
-- [ ] `npm run build` exits 0.
-- [ ] `npm run test:ci` passes.
-- [ ] With `npm run dev` running, `curl -s http://localhost:3000/api/products` returns a JSON array of 3 products.
-- [ ] With `npm run dev` running, `curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/checkout` returns `200`.
-- [ ] `git diff --stat src/lib/pricing.ts` is empty.
-- [ ] `requirements-check` skill (static) reports 0 ❌ (⏳ pending is fine).
-- [ ] Dev server stopped.
+- [x] `npm run build` exits 0.
+- [x] `npm run test:ci` passes.
+- [x] With `npm run dev` running, `curl -s http://localhost:3000/api/products` returns a JSON array of 3 products.
+- [x] With `npm run dev` running, `curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/checkout` returns `200`.
+- [x] `git diff --stat src/lib/pricing.ts` is empty.
+- [x] `requirements-check` skill (static) reports 0 ❌ (⏳ pending is fine).
+- [x] Dev server stopped.
 
 **Manual check for the user:** open `/checkout`. You should see 3 products with prices. Change the quantities; negative and fractional values are corrected.
 
