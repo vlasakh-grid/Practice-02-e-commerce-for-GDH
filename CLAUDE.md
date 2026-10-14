@@ -16,4 +16,4 @@ _Filled in by stage 1._
 
 ## Architecture
 
-_Filled in by stages 1–3._
+Defined in the `app-architecture` skill (`.claude/skills/app-architecture/SKILL.md`).

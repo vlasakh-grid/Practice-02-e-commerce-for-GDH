@@ -4,22 +4,16 @@ This plan implements [REQUIREMENTS.md](REQUIREMENTS.md) in three stages. After e
 
 ## 0. How to use this plan (read first, every agent)
 
-Progress is tracked by two files together:
-
-- **`docs/PLAN.md`** (this file) — every task is a checkbox (`- [ ]` / `- [x]`), every stage has a status line (`Status: ⬜ Not started` / `🟡 Blocked` / `✅ Done`).
-- **`docs/HANDOFF.md`** — a **single** file, overwritten at the end of each stage. It describes the last completed stage and what the next agent needs to know. It does not exist until stage 1 is finished.
+Progress is tracked by the checkboxes and stage statuses in this file plus a single `docs/HANDOFF.md`. How to read and write them is defined in the **`stage-handoff` skill** (`.claude/skills/stage-handoff/SKILL.md`). Use it at both ends of every stage. The app's architecture and layering rules are defined in the **`app-architecture` skill** (`.claude/skills/app-architecture/SKILL.md`).
 
 Workflow:
 
-1. Read `docs/REQUIREMENTS.md`, then this file (sections 0–3), then `docs/HANDOFF.md` if it exists.
-2. **Find your stage:** the first stage whose status is not `✅ Done`. It must match "Next stage" in `docs/HANDOFF.md` (if no handoff exists, you are on stage 1). If they disagree, stop and ask the user.
-   For stages 2 and 3, run `git status`. If the previous stage's files are not committed, stop and ask the user to commit them first. The `git diff` check on `pricing.ts` relies on a commit.
-3. Implement **only that stage**, task by task, in order. As you finish each task, change its `- [ ]` to `- [x]`.
-4. Run every acceptance check. When all pass:
-   - tick the acceptance checkboxes;
-   - set the stage status to `✅ Done`;
-   - **overwrite** `docs/HANDOFF.md` using the template in section 3.
-5. **Stop.** Tell the user the manual check steps for the stage. Do not start the next stage.
+1. Read `docs/REQUIREMENTS.md`, then this file (sections 0–2).
+2. **Start:** use the `stage-handoff` skill (part A, Receiving) to find your stage and load the handoff context.
+3. Before writing code, load the `app-architecture` skill and follow it.
+4. Implement **only that stage**, task by task, in order. As you finish each task, change its `- [ ]` to `- [x]`.
+5. Run every acceptance check of the stage.
+6. **Finish:** use the `stage-handoff` skill (part B, Handing off). It covers both Done and Blocked. Then stop; do not start the next stage.
 
 In `docs/PLAN.md` you may change only checkboxes and status lines. Never edit task text.
 
@@ -32,24 +26,21 @@ In `docs/PLAN.md` you may change only checkboxes and status lines. Never edit ta
    - dev: `typescript`, `@types/node`, `@types/react`, `@types/react-dom`, `vitest`.
    - Never add others: no DB/ORM, Tailwind, UI kits, CSS-in-JS, zod, auth, or external services. No Docker.
 4. Styling: only `src/app/globals.css` plus `className`. Inline `style` is allowed for one-off tweaks. One accent color, `#2563eb`.
-5. **`src/lib/pricing.ts` is a sensitive module.** It is created in stage 1 and must not be modified in later stages. If you think it needs a change, do not change it: write the reason in `docs/HANDOFF.md` under "Open issues" and stop.
+5. **`src/lib/pricing.ts` is a sensitive module.** It is created in stage 1 and must not be modified in later stages. If you think it needs a change, do not change it: hand off as Blocked using the `stage-handoff` skill and explain why under "Open issues".
 6. Money: a JS `number` in dollars (e.g. `4.99`).
    - Any computed amount goes through `roundToCents`.
    - In the UI, display as `` `$${value.toFixed(2)}` ``.
 7. Create only the files your stage lists, plus updates to `docs/HANDOFF.md` and the checkboxes in `docs/PLAN.md`. Generated files (`package-lock.json`, `next-env.d.ts`, `.next/`) are expected.
 8. If `next build` rewrites `tsconfig.json` (adds or changes fields), accept the change and mention it in the handoff.
-9. If a check fails, fix it inside the files of your stage. If you cannot:
-   - leave that checkbox unticked and set the stage status to `🟡 Blocked`;
-   - describe the failure in `docs/HANDOFF.md`;
-   - stop.
-
-   Never tick a check you did not actually run.
+9. If a check fails, fix it inside the files of your stage. If you cannot, hand off as Blocked using the `stage-handoff` skill.
 10. Do **not** run `git commit` or `git push`. The user commits after manual verification. `git mv` is allowed only where this plan says so.
 11. Always stop the dev server you started before finishing the stage.
 
 ## 2. Final target (after stage 3)
 
 ```
+.claude/skills/app-architecture/SKILL.md
+.claude/skills/stage-handoff/SKILL.md
 .gitignore
 CLAUDE.md
 README.md
@@ -81,43 +72,6 @@ Clarified decisions (binding, agreed with the user):
 | Checkout page | Loads `/api/products`; the user sets quantities; submits |
 | Tests | Vitest, one placeholder test in `src/lib/pricing.test.ts` |
 | Language | English for UI, code and docs |
-
-## 3. Handoff template: `docs/HANDOFF.md` (overwrite entirely each stage)
-
-```markdown
-# Handoff
-
-Last completed stage: <N> — <stage title>   (Status: Done | Done with open issues | Blocked)
-Next stage: <N+1> — <title>   (or "None — project complete")
-
-## What was implemented
-- bullet list of features
-
-## Files
-Created: ...
-Modified: ...
-
-## Verification results
-| Check | Command / action | Result |
-|---|---|---|
-| Build | npm run build | pass/fail (+ short note) |
-| Tests | npm run test:ci | pass/fail |
-| ... each acceptance check of the stage ... |
-
-## Deviations from the plan
-- what differed and why (or "None")
-
-## Open issues
-- anything unresolved (or "None")
-
-## Context for the next stage
-- only what the next agent needs that is not already in PLAN.md
-  (e.g. exact installed Next.js version, dev-server port, tsconfig changes made by Next)
-- carry forward any still-relevant facts from the previous HANDOFF.md, since it is overwritten
-
-## Manual check for the user
-1. step-by-step instructions to verify this stage by hand
-```
 
 ---
 
@@ -338,8 +292,7 @@ Status: ⬜ Not started
 
 - [ ] 14. Update `CLAUDE.md`:
   - fill `## Commands` with `npm run dev`, `npm run build`, `npm run test:ci`, and how to run a single test: `npx vitest run src/lib/pricing.test.ts` or `npx vitest run -t "<test name>"`;
-  - fill `## Architecture` with: `src/app` = pages + API routes, `src/lib/pricing.ts` = catalog + pricing;
-  - do not change other sections and do not copy rules from `docs/PLAN.md` or `docs/REQUIREMENTS.md`.
+  - do not change other sections and do not copy rules from `docs/PLAN.md`, `docs/REQUIREMENTS.md` or the skills.
 
 ### Acceptance checks
 
@@ -348,7 +301,7 @@ Status: ⬜ Not started
 - [ ] With `npm run dev` running, `curl -s http://localhost:3000/` contains "Welcome to GDH Shop".
 - [ ] With `npm run dev` running, `curl -s http://localhost:3000/checkout` contains "Checkout is not available yet".
 - [ ] `package.json` has exactly 3 scripts: `dev`, `build`, `test:ci`.
-- [ ] Dev server stopped; `docs/HANDOFF.md` written.
+- [ ] Dev server stopped.
 
 **Manual check for the user:** open `/`, click "Go to checkout", see the checkout page with the same layout, click "GDH Shop" to go back.
 
@@ -395,8 +348,6 @@ There is no ordering yet.
 
 - [ ] 3. `README.md`: add an "API" section documenting `GET /api/products` with an example response.
 
-- [ ] 4. `CLAUDE.md`: in the `## Architecture` section, mention the products route and the client-side checkout page.
-
 ### Acceptance checks
 
 - [ ] `npm run build` exits 0.
@@ -404,7 +355,7 @@ There is no ordering yet.
 - [ ] With `npm run dev` running, `curl -s http://localhost:3000/api/products` returns a JSON array of 3 products.
 - [ ] With `npm run dev` running, `curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/checkout` returns `200`.
 - [ ] `git diff --stat src/lib/pricing.ts` is empty.
-- [ ] Dev server stopped; `docs/HANDOFF.md` overwritten.
+- [ ] Dev server stopped.
 
 **Manual check for the user:** open `/checkout`. You should see 3 products with prices. Change the quantities; negative and fractional values are corrected.
 
@@ -427,9 +378,17 @@ Status: ⬜ Not started
   ```ts
   import { calculateTotal, findProduct, type CartItem } from "@/lib/pricing";
 
-  type ParseResult = { items: CartItem[] } | { error: string };
+  // API contract — imported by the checkout page with `import type`.
+  export type CheckoutRequest = { items: CartItem[] };
+  export type CheckoutSuccess = { orderId: string; total: number };
+  export type CheckoutError = { error: string };
 
-  function parseCart(body: unknown): ParseResult {
+  function badRequest(error: string) {
+    const response: CheckoutError = { error };
+    return Response.json(response, { status: 400 });
+  }
+
+  function parseCart(body: unknown): CheckoutRequest | CheckoutError {
     const rawItems = (body as { items?: unknown } | null)?.items;
     if (!Array.isArray(rawItems) || rawItems.length === 0) {
       return { error: "items must be a non-empty array" };
@@ -456,31 +415,33 @@ Status: ⬜ Not started
     try {
       body = await request.json();
     } catch {
-      return Response.json({ error: "Request body must be valid JSON" }, { status: 400 });
+      return badRequest("Request body must be valid JSON");
     }
 
     const result = parseCart(body);
     if ("error" in result) {
-      return Response.json({ error: result.error }, { status: 400 });
+      return badRequest(result.error);
     }
 
     const total = calculateTotal(result.items);
     // Future: persist the order here (DB write) before responding.
-    return Response.json({ orderId: crypto.randomUUID(), total });
+    const response: CheckoutSuccess = { orderId: crypto.randomUUID(), total };
+    return Response.json(response);
   }
   ```
 
 - [ ] 2. Extend `src/app/checkout/page.tsx`, keeping all stage 2 behavior:
+  - add `import type { CheckoutRequest, CheckoutSuccess, CheckoutError } from "@/app/api/checkout/route";`
   - new state:
     - `submitting: boolean`;
-    - `order: { orderId: string; total: number } | null`;
+    - `order: CheckoutSuccess | null`;
     - `submitError: string | null`;
   - a `<button className="button">Place order</button>` below the product list, disabled while `submitting` or when no quantity is > 0;
   - on click:
     - clear `order` and `submitError`, set `submitting` to `true`;
-    - build `items` from quantities > 0 as `{ productId, quantity }`;
-    - `fetch("/api/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items }) })`;
-    - if `res.ok`, set `order` from the JSON; otherwise set `submitError` to `data.error` or `"Checkout failed."`;
+    - build the body `const payload: CheckoutRequest = { items }` from quantities > 0 as `{ productId, quantity }`;
+    - `fetch("/api/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })`;
+    - if `res.ok`, set `order` from the JSON as `CheckoutSuccess`; otherwise read it as `CheckoutError` and set `submitError` to its `error` or `"Checkout failed."`;
     - if the call throws, set `submitError` to `"Network error."`;
     - always set `submitting` back to `false`;
   - on success, show a `<div className="card">` with "Order placed", the order ID, and `` `Total: $${order.total.toFixed(2)}` ``;
@@ -497,8 +458,6 @@ Status: ⬜ Not started
     6. the response `{ orderId, total }` is returned;
     7. the page shows the confirmation.
 
-- [ ] 4. `CLAUDE.md`: in the `## Architecture` section, add the checkout route and a one-line request lifecycle.
-
 ### Acceptance checks
 
 Run with `npm run dev` running. Use `curl -s -w '\n%{http_code}\n' -X POST http://localhost:3000/api/checkout -H 'Content-Type: application/json' -d '<body>'`:
@@ -512,7 +471,7 @@ Run with `npm run dev` running. Use `curl -s -w '\n%{http_code}\n' -X POST http:
 - [ ] `npm run build` exits 0.
 - [ ] `npm run test:ci` passes.
 - [ ] `git diff --stat src/lib/pricing.ts` is empty.
-- [ ] Dev server stopped; `docs/HANDOFF.md` overwritten with "Next stage: None — project complete".
+- [ ] Dev server stopped. (In the handoff, "Next stage" is "None — project complete".)
 
 **Manual check for the user:**
 1. Open `/checkout`, set Sticker pack = 3 and Coffee mug = 1, click "Place order". You should see "Order placed" and Total $27.47.
