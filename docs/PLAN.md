@@ -40,6 +40,7 @@ In `docs/PLAN.md` you may change only checkboxes and status lines. Never edit ta
 
 ```
 .claude/skills/app-architecture/SKILL.md
+.claude/skills/requirements-check/SKILL.md
 .claude/skills/stage-handoff/SKILL.md
 .gitignore
 CLAUDE.md
@@ -301,6 +302,7 @@ Status: ⬜ Not started
 - [ ] With `npm run dev` running, `curl -s http://localhost:3000/` contains "Welcome to GDH Shop".
 - [ ] With `npm run dev` running, `curl -s http://localhost:3000/checkout` contains "Checkout is not available yet".
 - [ ] `package.json` has exactly 3 scripts: `dev`, `build`, `test:ci`.
+- [ ] `requirements-check` skill (static) reports 0 ❌ (⏳ pending is fine).
 - [ ] Dev server stopped.
 
 **Manual check for the user:** open `/`, click "Go to checkout", see the checkout page with the same layout, click "GDH Shop" to go back.
@@ -355,6 +357,7 @@ There is no ordering yet.
 - [ ] With `npm run dev` running, `curl -s http://localhost:3000/api/products` returns a JSON array of 3 products.
 - [ ] With `npm run dev` running, `curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/checkout` returns `200`.
 - [ ] `git diff --stat src/lib/pricing.ts` is empty.
+- [ ] `requirements-check` skill (static) reports 0 ❌ (⏳ pending is fine).
 - [ ] Dev server stopped.
 
 **Manual check for the user:** open `/checkout`. You should see 3 products with prices. Change the quantities; negative and fractional values are corrected.
@@ -471,6 +474,7 @@ Run with `npm run dev` running. Use `curl -s -w '\n%{http_code}\n' -X POST http:
 - [ ] `npm run build` exits 0.
 - [ ] `npm run test:ci` passes.
 - [ ] `git diff --stat src/lib/pricing.ts` is empty.
+- [ ] `requirements-check` skill in full mode reports 0 ❌ and 0 ⏳.
 - [ ] Dev server stopped. (In the handoff, "Next stage" is "None — project complete".)
 
 **Manual check for the user:**
