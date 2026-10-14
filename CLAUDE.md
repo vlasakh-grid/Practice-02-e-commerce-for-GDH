@@ -2,14 +2,18 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project status
+## Where things are
 
-This repository is a fresh scaffold for an e-commerce practice project ("Practice-02-e-commerce-for-GDH"). It has no commits yet. The only tracked file is an empty `readme.md`. There's no source code, package manifest, build tooling, linter, or test setup yet, so there are no build, lint, or test commands.
+- `docs/REQUIREMENTS.md` — the project spec, single source of truth. Do not edit it.
+- `docs/PLAN.md` — staged implementation plan. Its section 1 (Global rules) applies to **all** work in this repo, not only stage work.
+- `docs/HANDOFF.md` — state after the last completed stage (appears after stage 1).
 
-The `.idea/` directory holds JetBrains IDE settings (a generic `WEB_MODULE`). It isn't a source of project configuration.
+To continue implementation, follow section 0 of `docs/PLAN.md`.
 
-## Keeping this file current
+## Commands
 
-Once a tech stack and code are added, update this file with:
-- The real build, lint, and test commands, including how to run a single test
-- The high-level architecture: how the frontend, backend, data layer, and any services fit together
+_Filled in by stage 1._
+
+## Architecture
+
+_Filled in by stages 1–3._

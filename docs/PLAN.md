@@ -337,10 +337,9 @@ Status: ⬜ Not started
   - Scripts: `dev`, `build`, `test:ci` — one line each.
 
 - [ ] 14. Update `CLAUDE.md`:
-  - replace the "Project status" section with the real stack;
-  - commands: `npm run dev`, `npm run build`, `npm run test:ci`; single test: `npx vitest run src/lib/pricing.test.ts` or `npx vitest run -t "<test name>"`;
-  - architecture: `src/app` = pages + API routes, `src/lib/pricing.ts` = catalog + pricing (sensitive — do not edit without the user's explicit permission);
-  - point to `docs/PLAN.md` and `docs/HANDOFF.md` for staged progress.
+  - fill `## Commands` with `npm run dev`, `npm run build`, `npm run test:ci`, and how to run a single test: `npx vitest run src/lib/pricing.test.ts` or `npx vitest run -t "<test name>"`;
+  - fill `## Architecture` with: `src/app` = pages + API routes, `src/lib/pricing.ts` = catalog + pricing;
+  - do not change other sections and do not copy rules from `docs/PLAN.md` or `docs/REQUIREMENTS.md`.
 
 ### Acceptance checks
 
@@ -396,7 +395,7 @@ There is no ordering yet.
 
 - [ ] 3. `README.md`: add an "API" section documenting `GET /api/products` with an example response.
 
-- [ ] 4. `CLAUDE.md`: mention the products route and the client-side checkout page in the architecture.
+- [ ] 4. `CLAUDE.md`: in the `## Architecture` section, mention the products route and the client-side checkout page.
 
 ### Acceptance checks
 
@@ -498,7 +497,7 @@ Status: ⬜ Not started
     6. the response `{ orderId, total }` is returned;
     7. the page shows the confirmation.
 
-- [ ] 4. `CLAUDE.md`: add the checkout route and a one-line request lifecycle to the architecture.
+- [ ] 4. `CLAUDE.md`: in the `## Architecture` section, add the checkout route and a one-line request lifecycle.
 
 ### Acceptance checks
 
