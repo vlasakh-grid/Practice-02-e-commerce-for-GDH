@@ -6,10 +6,10 @@ Next stage: None — project complete
 ## What was implemented
 - `POST /api/checkout` validates the cart (`parseCart`), prices it with `calculateTotal`, and returns `200 { orderId, total }` or `400 { error }`. Nothing is stored. API contract types (`CheckoutRequest`, `CheckoutSuccess`, `CheckoutError`) are exported from the route file.
 - `/checkout` keeps all stage 2 behavior and adds a "Place order" button (disabled while submitting or when no quantity > 0), an "Order placed" card (order ID, total) and error display (`error` from the API, `"Checkout failed."`, `"Network error."`).
-- `README.md` documents `POST /api/checkout` (request, 200, 400 with all error messages) and has a numbered "Request lifecycle" section.
+- API documentation (`GET /api/products`, `POST /api/checkout` with request, 200, 400 and all error messages) lives in `docs/APIs.md`, moved out of the README at the user's request. `README.md` only links to it and has a numbered "Request lifecycle" section.
 
 ## Files
-Created: `src/app/api/checkout/route.ts`
+Created: `src/app/api/checkout/route.ts`, `docs/APIs.md` (not in the plan's file list; added at the user's request)
 Modified: `src/app/checkout/page.tsx`, `README.md`, `docs/PLAN.md` (checkboxes and status only), `docs/HANDOFF.md`
 `src/lib/pricing.ts` untouched. `tsconfig.json` unchanged by this stage's build.
 
