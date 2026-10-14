@@ -1,0 +1,521 @@
+# Implementation plan
+
+This plan implements [REQUIREMENTS.md](REQUIREMENTS.md) in three stages. After every stage the app is fully runnable and can be tested by hand; each stage only adds functionality.
+
+## 0. How to use this plan (read first, every agent)
+
+Progress is tracked by two files together:
+
+- **`docs/PLAN.md`** (this file) — every task is a checkbox (`- [ ]` / `- [x]`), every stage has a status line (`Status: ⬜ Not started` / `🟡 Blocked` / `✅ Done`).
+- **`docs/HANDOFF.md`** — a **single** file, overwritten at the end of each stage. It describes the last completed stage and what the next agent needs to know. It does not exist until stage 1 is finished.
+
+Workflow:
+
+1. Read `docs/REQUIREMENTS.md`, then this file (sections 0–3), then `docs/HANDOFF.md` if it exists.
+2. **Find your stage:** the first stage whose status is not `✅ Done`. It must match "Next stage" in `docs/HANDOFF.md` (if no handoff exists, you are on stage 1). If they disagree, stop and ask the user.
+   For stages 2 and 3, run `git status`. If the previous stage's files are not committed, stop and ask the user to commit them first. The `git diff` check on `pricing.ts` relies on a commit.
+3. Implement **only that stage**, task by task, in order. As you finish each task, change its `- [ ]` to `- [x]`.
+4. Run every acceptance check. When all pass:
+   - tick the acceptance checkboxes;
+   - set the stage status to `✅ Done`;
+   - **overwrite** `docs/HANDOFF.md` using the template in section 3.
+5. **Stop.** Tell the user the manual check steps for the stage. Do not start the next stage.
+
+In `docs/PLAN.md` you may change only checkboxes and status lines. Never edit task text.
+
+## 1. Global rules (apply to every stage)
+
+1. Stack: Next.js App Router, TypeScript `strict`, `src/` directory, npm.
+2. `package.json` `scripts` has **exactly** three keys: `dev`, `build`, `test:ci`. Never add `start`, `lint` or anything else.
+3. Allowed dependencies only:
+   - `next`, `react`, `react-dom`;
+   - dev: `typescript`, `@types/node`, `@types/react`, `@types/react-dom`, `vitest`.
+   - Never add others: no DB/ORM, Tailwind, UI kits, CSS-in-JS, zod, auth, or external services. No Docker.
+4. Styling: only `src/app/globals.css` plus `className`. Inline `style` is allowed for one-off tweaks. One accent color, `#2563eb`.
+5. **`src/lib/pricing.ts` is a sensitive module.** It is created in stage 1 and must not be modified in later stages. If you think it needs a change, do not change it: write the reason in `docs/HANDOFF.md` under "Open issues" and stop.
+6. Money: a JS `number` in dollars (e.g. `4.99`).
+   - Any computed amount goes through `roundToCents`.
+   - In the UI, display as `` `$${value.toFixed(2)}` ``.
+7. Create only the files your stage lists, plus updates to `docs/HANDOFF.md` and the checkboxes in `docs/PLAN.md`. Generated files (`package-lock.json`, `next-env.d.ts`, `.next/`) are expected.
+8. If `next build` rewrites `tsconfig.json` (adds or changes fields), accept the change and mention it in the handoff.
+9. If a check fails, fix it inside the files of your stage. If you cannot:
+   - leave that checkbox unticked and set the stage status to `🟡 Blocked`;
+   - describe the failure in `docs/HANDOFF.md`;
+   - stop.
+
+   Never tick a check you did not actually run.
+10. Do **not** run `git commit` or `git push`. The user commits after manual verification. `git mv` is allowed only where this plan says so.
+11. Always stop the dev server you started before finishing the stage.
+
+## 2. Final target (after stage 3)
+
+```
+.gitignore
+CLAUDE.md
+README.md
+next.config.ts
+package.json
+tsconfig.json
+docs/REQUIREMENTS.md
+docs/PLAN.md
+docs/HANDOFF.md
+src/app/globals.css
+src/app/layout.tsx
+src/app/page.tsx
+src/app/checkout/page.tsx
+src/app/api/products/route.ts
+src/app/api/checkout/route.ts
+src/lib/pricing.ts
+src/lib/pricing.test.ts
+```
+
+Clarified decisions (binding, agreed with the user):
+
+| Topic | Decision |
+|---|---|
+| Catalog | Hard-coded `PRODUCTS` in `src/lib/pricing.ts`; no data files |
+| Discounts | `applyDiscounts` is a stub that returns the subtotal unchanged |
+| Checkout request | `{ "items": [{ "productId": string, "quantity": integer >= 1 }] }`; the server computes prices from the catalog and never trusts client prices |
+| Checkout response | `200 { orderId, total }` / `400 { error }`; nothing is stored |
+| `GET /api/products` | Returns the `PRODUCTS` array as JSON |
+| Checkout page | Loads `/api/products`; the user sets quantities; submits |
+| Tests | Vitest, one placeholder test in `src/lib/pricing.test.ts` |
+| Language | English for UI, code and docs |
+
+## 3. Handoff template: `docs/HANDOFF.md` (overwrite entirely each stage)
+
+```markdown
+# Handoff
+
+Last completed stage: <N> — <stage title>   (Status: Done | Done with open issues | Blocked)
+Next stage: <N+1> — <title>   (or "None — project complete")
+
+## What was implemented
+- bullet list of features
+
+## Files
+Created: ...
+Modified: ...
+
+## Verification results
+| Check | Command / action | Result |
+|---|---|---|
+| Build | npm run build | pass/fail (+ short note) |
+| Tests | npm run test:ci | pass/fail |
+| ... each acceptance check of the stage ... |
+
+## Deviations from the plan
+- what differed and why (or "None")
+
+## Open issues
+- anything unresolved (or "None")
+
+## Context for the next stage
+- only what the next agent needs that is not already in PLAN.md
+  (e.g. exact installed Next.js version, dev-server port, tsconfig changes made by Next)
+- carry forward any still-relevant facts from the previous HANDOFF.md, since it is overwritten
+
+## Manual check for the user
+1. step-by-step instructions to verify this stage by hand
+```
+
+---
+
+## Stage 1 — Skeleton, shared design, pricing module, placeholder test
+
+Status: ⬜ Not started
+
+**Result:** `npm install && npm run dev` serves:
+- a home page with a heading and a link to `/checkout`;
+- `/checkout` with a "not available yet" card;
+- the same layout on both pages.
+
+`npm run build` and `npm run test:ci` pass.
+
+### Tasks
+
+- [ ] 1. Rename the existing empty readme: `git mv readme.md README.md`.
+
+- [ ] 2. Create `package.json`:
+  ```json
+  {
+    "name": "practice-02-e-commerce-for-gdh",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+      "dev": "next dev",
+      "build": "next build",
+      "test:ci": "vitest run"
+    }
+  }
+  ```
+
+- [ ] 3. Install dependencies (exact versions are written to `package.json`):
+  ```bash
+  npm install --save-exact next@latest react@latest react-dom@latest
+  npm install --save-exact --save-dev typescript @types/node @types/react @types/react-dom vitest
+  ```
+  Afterwards confirm `scripts` still has exactly 3 keys.
+
+- [ ] 4. Create `tsconfig.json`:
+  ```json
+  {
+    "compilerOptions": {
+      "target": "ES2017",
+      "lib": ["dom", "dom.iterable", "esnext"],
+      "skipLibCheck": true,
+      "strict": true,
+      "noEmit": true,
+      "esModuleInterop": true,
+      "module": "esnext",
+      "moduleResolution": "bundler",
+      "resolveJsonModule": true,
+      "isolatedModules": true,
+      "jsx": "preserve",
+      "incremental": true,
+      "plugins": [{ "name": "next" }],
+      "paths": { "@/*": ["./src/*"] }
+    },
+    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+    "exclude": ["node_modules"]
+  }
+  ```
+
+- [ ] 5. Create `next.config.ts`:
+  ```ts
+  import type { NextConfig } from "next";
+
+  const nextConfig: NextConfig = {};
+
+  export default nextConfig;
+  ```
+
+- [ ] 6. Create `.gitignore`:
+  ```
+  node_modules/
+  .next/
+  next-env.d.ts
+  *.tsbuildinfo
+  .DS_Store
+  ```
+
+- [ ] 7. Create `src/lib/pricing.ts` **exactly** as below. This is the sensitive module; it is written only once.
+  ```ts
+  export type Product = {
+    id: string;
+    name: string;
+    price: number; // dollars, e.g. 4.99
+  };
+
+  export type CartItem = {
+    productId: string;
+    quantity: number;
+  };
+
+  // A discount takes the current total and returns the amount to subtract.
+  export type Discount = (total: number) => number;
+
+  export const PRODUCTS: readonly Product[] = [
+    { id: "tshirt", name: "T-shirt", price: 19.99 },
+    { id: "mug", name: "Coffee mug", price: 12.5 },
+    { id: "sticker", name: "Sticker pack", price: 4.99 },
+  ];
+
+  export function roundToCents(value: number): number {
+    return Math.round(value * 100) / 100;
+  }
+
+  export function findProduct(productId: string): Product | undefined {
+    return PRODUCTS.find((product) => product.id === productId);
+  }
+
+  // Stub: discount stacking is not implemented yet, the subtotal is returned unchanged.
+  export function applyDiscounts(subtotal: number, _discounts: Discount[] = []): number {
+    return subtotal;
+  }
+
+  // Assumes items are already validated (known productId, integer quantity >= 1).
+  export function calculateTotal(items: CartItem[]): number {
+    const subtotal = items.reduce((sum, item) => {
+      const product = findProduct(item.productId);
+      if (!product) {
+        throw new Error(`Unknown product: ${item.productId}`);
+      }
+      return roundToCents(sum + product.price * item.quantity);
+    }, 0);
+    return roundToCents(applyDiscounts(subtotal));
+  }
+  ```
+
+- [ ] 8. Create `src/lib/pricing.test.ts` (the single placeholder test):
+  ```ts
+  import { describe, expect, it } from "vitest";
+  import { calculateTotal } from "./pricing";
+
+  describe("calculateTotal", () => {
+    it("sums line items and rounds to cents", () => {
+      expect(calculateTotal([{ productId: "sticker", quantity: 3 }])).toBe(14.97);
+    });
+  });
+  ```
+
+- [ ] 9. Create `src/app/globals.css`:
+  ```css
+  :root {
+    --accent: #2563eb;
+    --text: #111827;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --bg: #f9fafb;
+    --card: #ffffff;
+    --error: #b91c1c;
+    --radius: 8px;
+    --space: 16px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.5;
+  }
+
+  .container { max-width: 720px; margin: 0 auto; padding: calc(var(--space) * 2) var(--space); }
+  .header { margin-bottom: calc(var(--space) * 2); font-weight: 600; }
+  .header a { color: var(--text); text-decoration: none; }
+
+  h1 { margin: 0 0 var(--space); font-size: 1.75rem; }
+  a { color: var(--accent); }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--space);
+    margin-bottom: var(--space);
+  }
+
+  .button {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 10px 18px;
+    font: inherit;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .button:hover { opacity: 0.9; }
+  .button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .muted { color: var(--muted); }
+  .error { color: var(--error); }
+  ```
+
+- [ ] 10. Create `src/app/layout.tsx` (root layout shared by every page):
+  - import `./globals.css`;
+  - export `metadata` with title `"GDH Shop"`;
+  - render `<html lang="en"><body><div className="container">`, inside it `<header className="header">` containing `<Link href="/">GDH Shop</Link>` (from `next/link`), then `<main>{children}</main>`;
+  - type `children` as `ReactNode` imported from `react`.
+
+- [ ] 11. Create `src/app/page.tsx` (server component):
+  - `<h1>Welcome to GDH Shop</h1>`;
+  - a `<div className="card">` with one short sentence and `<Link className="button" href="/checkout">Go to checkout</Link>`.
+
+- [ ] 12. Create `src/app/checkout/page.tsx` (server component, temporary — replaced in stage 2):
+  - `<h1>Checkout</h1>`;
+  - a `<div className="card">` with `<p className="muted">Checkout is not available yet.</p>`.
+
+- [ ] 13. Write `README.md`:
+  - project title and one-line description;
+  - Requirements: Node.js 20+ and npm;
+  - Getting started: `npm install`, `npm run dev`, then open http://localhost:3000;
+  - Scripts: `dev`, `build`, `test:ci` — one line each.
+
+- [ ] 14. Update `CLAUDE.md`:
+  - replace the "Project status" section with the real stack;
+  - commands: `npm run dev`, `npm run build`, `npm run test:ci`; single test: `npx vitest run src/lib/pricing.test.ts` or `npx vitest run -t "<test name>"`;
+  - architecture: `src/app` = pages + API routes, `src/lib/pricing.ts` = catalog + pricing (sensitive — do not edit without the user's explicit permission);
+  - point to `docs/PLAN.md` and `docs/HANDOFF.md` for staged progress.
+
+### Acceptance checks
+
+- [ ] `npm run build` exits 0.
+- [ ] `npm run test:ci` reports 1 test passed.
+- [ ] With `npm run dev` running, `curl -s http://localhost:3000/` contains "Welcome to GDH Shop".
+- [ ] With `npm run dev` running, `curl -s http://localhost:3000/checkout` contains "Checkout is not available yet".
+- [ ] `package.json` has exactly 3 scripts: `dev`, `build`, `test:ci`.
+- [ ] Dev server stopped; `docs/HANDOFF.md` written.
+
+**Manual check for the user:** open `/`, click "Go to checkout", see the checkout page with the same layout, click "GDH Shop" to go back.
+
+---
+
+## Stage 2 — Product catalog API and product selection
+
+Status: ⬜ Not started
+
+**Result:**
+- `GET /api/products` returns the catalog;
+- `/checkout` lists products with prices and quantity inputs.
+
+There is no ordering yet.
+
+**Do not modify:** `src/lib/pricing.ts`.
+
+### Tasks
+
+- [ ] 1. Create `src/app/api/products/route.ts`:
+  ```ts
+  import { PRODUCTS } from "@/lib/pricing";
+
+  export function GET() {
+    return Response.json(PRODUCTS);
+  }
+  ```
+
+- [ ] 2. Replace `src/app/checkout/page.tsx` with a client component:
+  - first line: `"use client";`
+  - `import type { Product } from "@/lib/pricing";` (type only — do not import `PRODUCTS` into the client);
+  - state:
+    - `products: Product[]` (initially `[]`);
+    - `quantities: Record<string, number>` (missing key means 0);
+    - `loading: boolean` (initially `true`);
+    - `loadError: string | null`;
+  - in `useEffect`, call `fetch("/api/products")`. If the response is not OK or the call throws, set `loadError` to `"Could not load products."`. Always set `loading` to `false` at the end;
+  - render:
+    - `<h1>Checkout</h1>`;
+    - while loading: `<p className="muted">Loading products…</p>`;
+    - on error: `<p className="error">{loadError}</p>`;
+    - otherwise, one `<div className="card">` per product with the name, the price as `` `$${product.price.toFixed(2)}` ``, and a `<label>` wrapping `<input type="number" min={0} step={1}>` bound to `quantities[product.id] ?? 0`;
+  - on input change, sanitize with `Math.max(0, Math.floor(Number(value) || 0))`.
+
+- [ ] 3. `README.md`: add an "API" section documenting `GET /api/products` with an example response.
+
+- [ ] 4. `CLAUDE.md`: mention the products route and the client-side checkout page in the architecture.
+
+### Acceptance checks
+
+- [ ] `npm run build` exits 0.
+- [ ] `npm run test:ci` passes.
+- [ ] With `npm run dev` running, `curl -s http://localhost:3000/api/products` returns a JSON array of 3 products.
+- [ ] With `npm run dev` running, `curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/checkout` returns `200`.
+- [ ] `git diff --stat src/lib/pricing.ts` is empty.
+- [ ] Dev server stopped; `docs/HANDOFF.md` overwritten.
+
+**Manual check for the user:** open `/checkout`. You should see 3 products with prices. Change the quantities; negative and fractional values are corrected.
+
+---
+
+## Stage 3 — Checkout API, order submission, request-lifecycle docs
+
+Status: ⬜ Not started
+
+**Result:**
+- `POST /api/checkout` validates the cart and returns `{ orderId, total }`;
+- the checkout page submits the order and shows the result or the error;
+- the README describes the request lifecycle.
+
+**Do not modify:** `src/lib/pricing.ts`.
+
+### Tasks
+
+- [ ] 1. Create `src/app/api/checkout/route.ts`:
+  ```ts
+  import { calculateTotal, findProduct, type CartItem } from "@/lib/pricing";
+
+  type ParseResult = { items: CartItem[] } | { error: string };
+
+  function parseCart(body: unknown): ParseResult {
+    const rawItems = (body as { items?: unknown } | null)?.items;
+    if (!Array.isArray(rawItems) || rawItems.length === 0) {
+      return { error: "items must be a non-empty array" };
+    }
+    const items: CartItem[] = [];
+    for (const raw of rawItems) {
+      if (typeof raw !== "object" || raw === null) {
+        return { error: "Each item must be an object with productId and quantity" };
+      }
+      const { productId, quantity } = raw as Record<string, unknown>;
+      if (typeof productId !== "string" || !findProduct(productId)) {
+        return { error: `Unknown product: ${String(productId)}` };
+      }
+      if (typeof quantity !== "number" || !Number.isInteger(quantity) || quantity < 1) {
+        return { error: "quantity must be an integer of at least 1" };
+      }
+      items.push({ productId, quantity });
+    }
+    return { items };
+  }
+
+  export async function POST(request: Request) {
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return Response.json({ error: "Request body must be valid JSON" }, { status: 400 });
+    }
+
+    const result = parseCart(body);
+    if ("error" in result) {
+      return Response.json({ error: result.error }, { status: 400 });
+    }
+
+    const total = calculateTotal(result.items);
+    // Future: persist the order here (DB write) before responding.
+    return Response.json({ orderId: crypto.randomUUID(), total });
+  }
+  ```
+
+- [ ] 2. Extend `src/app/checkout/page.tsx`, keeping all stage 2 behavior:
+  - new state:
+    - `submitting: boolean`;
+    - `order: { orderId: string; total: number } | null`;
+    - `submitError: string | null`;
+  - a `<button className="button">Place order</button>` below the product list, disabled while `submitting` or when no quantity is > 0;
+  - on click:
+    - clear `order` and `submitError`, set `submitting` to `true`;
+    - build `items` from quantities > 0 as `{ productId, quantity }`;
+    - `fetch("/api/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items }) })`;
+    - if `res.ok`, set `order` from the JSON; otherwise set `submitError` to `data.error` or `"Checkout failed."`;
+    - if the call throws, set `submitError` to `"Network error."`;
+    - always set `submitting` back to `false`;
+  - on success, show a `<div className="card">` with "Order placed", the order ID, and `` `Total: $${order.total.toFixed(2)}` ``;
+  - on failure, show `<p className="error">{submitError}</p>`.
+
+- [ ] 3. `README.md`:
+  - document `POST /api/checkout`: request body, the 200 response, the 400 response and all error messages;
+  - add a **"Request lifecycle"** section as a numbered list:
+    1. the user clicks "Place order" on `/checkout`;
+    2. the client builds `{ items }` from quantities > 0 and calls `fetch POST /api/checkout`;
+    3. the route handler parses JSON and validates the cart (`parseCart`) → 400 on error;
+    4. `calculateTotal` in `src/lib/pricing.ts` prices items from the catalog and applies discounts (currently a stub);
+    5. *(future)* the order is written to the database at this point;
+    6. the response `{ orderId, total }` is returned;
+    7. the page shows the confirmation.
+
+- [ ] 4. `CLAUDE.md`: add the checkout route and a one-line request lifecycle to the architecture.
+
+### Acceptance checks
+
+Run with `npm run dev` running. Use `curl -s -w '\n%{http_code}\n' -X POST http://localhost:3000/api/checkout -H 'Content-Type: application/json' -d '<body>'`:
+
+- [ ] Body `{"items":[{"productId":"sticker","quantity":3},{"productId":"mug","quantity":1}]}` → `200`, `total` is `27.47`, `orderId` is a UUID.
+- [ ] Body `{"items":[]}` → `400` `items must be a non-empty array`.
+- [ ] Body `{"items":[{"productId":"nope","quantity":1}]}` → `400` `Unknown product: nope`.
+- [ ] Body `{"items":[{"productId":"mug","quantity":0}]}` → `400` `quantity must be an integer of at least 1`.
+- [ ] Body `{"items":[{"productId":"mug","quantity":1.5}]}` → `400` `quantity must be an integer of at least 1`.
+- [ ] Body `not json` → `400` `Request body must be valid JSON`.
+- [ ] `npm run build` exits 0.
+- [ ] `npm run test:ci` passes.
+- [ ] `git diff --stat src/lib/pricing.ts` is empty.
+- [ ] Dev server stopped; `docs/HANDOFF.md` overwritten with "Next stage: None — project complete".
+
+**Manual check for the user:**
+1. Open `/checkout`, set Sticker pack = 3 and Coffee mug = 1, click "Place order". You should see "Order placed" and Total $27.47.
+2. With all quantities at 0, the button is disabled.
+3. Run one of the 400 curl commands above and see the error JSON.
