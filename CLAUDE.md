@@ -12,7 +12,11 @@ To continue implementation, follow section 0 of `docs/PLAN.md`.
 
 ## Commands
 
-_Filled in by stage 1._
+- `npm run dev` — start the dev server (http://localhost:3000)
+- `npm run build` — production build
+- `npm run test:ci` — run all tests once (Vitest)
+- Single test file: `npx vitest run src/lib/pricing.test.ts`
+- Single test by name: `npx vitest run -t "<test name>"`
 
 ## Architecture
 

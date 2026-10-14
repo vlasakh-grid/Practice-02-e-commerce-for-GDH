@@ -78,7 +78,7 @@ Clarified decisions (binding, agreed with the user):
 
 ## Stage 1 — Skeleton, shared design, pricing module, placeholder test
 
-Status: ⬜ Not started
+Status: ✅ Done
 
 **Result:** `npm install && npm run dev` serves:
 - a home page with a heading and a link to `/checkout`;
@@ -89,9 +89,9 @@ Status: ⬜ Not started
 
 ### Tasks
 
-- [ ] 1. Rename the existing empty readme: `git mv readme.md README.md`.
+- [x] 1. Rename the existing empty readme: `git mv readme.md README.md`.
 
-- [ ] 2. Create `package.json`:
+- [x] 2. Create `package.json`:
   ```json
   {
     "name": "practice-02-e-commerce-for-gdh",
@@ -105,14 +105,14 @@ Status: ⬜ Not started
   }
   ```
 
-- [ ] 3. Install dependencies (exact versions are written to `package.json`):
+- [x] 3. Install dependencies (exact versions are written to `package.json`):
   ```bash
   npm install --save-exact next@latest react@latest react-dom@latest
   npm install --save-exact --save-dev typescript @types/node @types/react @types/react-dom vitest
   ```
   Afterwards confirm `scripts` still has exactly 3 keys.
 
-- [ ] 4. Create `tsconfig.json`:
+- [x] 4. Create `tsconfig.json`:
   ```json
   {
     "compilerOptions": {
@@ -136,7 +136,7 @@ Status: ⬜ Not started
   }
   ```
 
-- [ ] 5. Create `next.config.ts`:
+- [x] 5. Create `next.config.ts`:
   ```ts
   import type { NextConfig } from "next";
 
@@ -145,7 +145,7 @@ Status: ⬜ Not started
   export default nextConfig;
   ```
 
-- [ ] 6. Create `.gitignore`:
+- [x] 6. Create `.gitignore`:
   ```
   node_modules/
   .next/
@@ -154,7 +154,7 @@ Status: ⬜ Not started
   .DS_Store
   ```
 
-- [ ] 7. Create `src/lib/pricing.ts` **exactly** as below. This is the sensitive module; it is written only once.
+- [x] 7. Create `src/lib/pricing.ts` **exactly** as below. This is the sensitive module; it is written only once.
   ```ts
   export type Product = {
     id: string;
@@ -202,7 +202,7 @@ Status: ⬜ Not started
   }
   ```
 
-- [ ] 8. Create `src/lib/pricing.test.ts` (the single placeholder test):
+- [x] 8. Create `src/lib/pricing.test.ts` (the single placeholder test):
   ```ts
   import { describe, expect, it } from "vitest";
   import { calculateTotal } from "./pricing";
@@ -214,7 +214,7 @@ Status: ⬜ Not started
   });
   ```
 
-- [ ] 9. Create `src/app/globals.css`:
+- [x] 9. Create `src/app/globals.css`:
   ```css
   :root {
     --accent: #2563eb;
@@ -271,39 +271,39 @@ Status: ⬜ Not started
   .error { color: var(--error); }
   ```
 
-- [ ] 10. Create `src/app/layout.tsx` (root layout shared by every page):
+- [x] 10. Create `src/app/layout.tsx` (root layout shared by every page):
   - import `./globals.css`;
   - export `metadata` with title `"GDH Shop"`;
   - render `<html lang="en"><body><div className="container">`, inside it `<header className="header">` containing `<Link href="/">GDH Shop</Link>` (from `next/link`), then `<main>{children}</main>`;
   - type `children` as `ReactNode` imported from `react`.
 
-- [ ] 11. Create `src/app/page.tsx` (server component):
+- [x] 11. Create `src/app/page.tsx` (server component):
   - `<h1>Welcome to GDH Shop</h1>`;
   - a `<div className="card">` with one short sentence and `<Link className="button" href="/checkout">Go to checkout</Link>`.
 
-- [ ] 12. Create `src/app/checkout/page.tsx` (server component, temporary — replaced in stage 2):
+- [x] 12. Create `src/app/checkout/page.tsx` (server component, temporary — replaced in stage 2):
   - `<h1>Checkout</h1>`;
   - a `<div className="card">` with `<p className="muted">Checkout is not available yet.</p>`.
 
-- [ ] 13. Write `README.md`:
+- [x] 13. Write `README.md`:
   - project title and one-line description;
   - Requirements: Node.js 20+ and npm;
   - Getting started: `npm install`, `npm run dev`, then open http://localhost:3000;
   - Scripts: `dev`, `build`, `test:ci` — one line each.
 
-- [ ] 14. Update `CLAUDE.md`:
+- [x] 14. Update `CLAUDE.md`:
   - fill `## Commands` with `npm run dev`, `npm run build`, `npm run test:ci`, and how to run a single test: `npx vitest run src/lib/pricing.test.ts` or `npx vitest run -t "<test name>"`;
   - do not change other sections and do not copy rules from `docs/PLAN.md`, `docs/REQUIREMENTS.md` or the skills.
 
 ### Acceptance checks
 
-- [ ] `npm run build` exits 0.
-- [ ] `npm run test:ci` reports 1 test passed.
-- [ ] With `npm run dev` running, `curl -s http://localhost:3000/` contains "Welcome to GDH Shop".
-- [ ] With `npm run dev` running, `curl -s http://localhost:3000/checkout` contains "Checkout is not available yet".
-- [ ] `package.json` has exactly 3 scripts: `dev`, `build`, `test:ci`.
-- [ ] `requirements-check` skill (static) reports 0 ❌ (⏳ pending is fine).
-- [ ] Dev server stopped.
+- [x] `npm run build` exits 0.
+- [x] `npm run test:ci` reports 1 test passed.
+- [x] With `npm run dev` running, `curl -s http://localhost:3000/` contains "Welcome to GDH Shop".
+- [x] With `npm run dev` running, `curl -s http://localhost:3000/checkout` contains "Checkout is not available yet".
+- [x] `package.json` has exactly 3 scripts: `dev`, `build`, `test:ci`.
+- [x] `requirements-check` skill (static) reports 0 ❌ (⏳ pending is fine).
+- [x] Dev server stopped.
 
 **Manual check for the user:** open `/`, click "Go to checkout", see the checkout page with the same layout, click "GDH Shop" to go back.
 
