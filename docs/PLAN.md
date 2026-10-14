@@ -287,7 +287,7 @@ Status: ✅ Done
 
 - [x] 13. Write `README.md`:
   - project title and one-line description;
-  - Requirements: Node.js 20+ and npm;
+  - Requirements: Node.js 22+ and npm;
   - Getting started: `npm install`, `npm run dev`, then open http://localhost:3000;
   - Scripts: `dev`, `build`, `test:ci` — one line each.
 

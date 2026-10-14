@@ -26,16 +26,16 @@ Unplanned: `AGENTS.md` (written by `next dev`, see Open issues)
 | Dev server | port 3000 | stopped, nothing listening |
 
 ## Deviations from the plan
-- **vitest is pinned to `3.2.7`, not latest.** Latest (5.0.4) needs Node `^22.12 || ^24 || >=26` and crashed on Node 20.11.0 (`util.styleText` missing), which contradicts "Node.js 20+" in the README. `4.1.11` (engines allow Node 20) makes npm 10.2.4 crash (`Cannot read properties of null (reading 'edgesOut')`) even on a clean install. `3.2.7` installs and runs on Node 20.11.0 / npm 10.2.4.
+- ~~vitest pinned to `3.2.7`~~ **Resolved after stage 1:** Node.js was upgraded 20.11.0 → 22.23.3 (nvm 0.39.7 → 0.40.8), `.nvmrc` (`22`) added, and vitest upgraded to latest `5.0.4` (needs Node `^22.12 || ^24 || >=26`). README and `docs/PLAN.md` now say "Node.js 22+". Original problem for history: vitest 5 crashed on Node 20.11.0 (`util.styleText` missing) and 4.1.11 crashed npm 10.2.4.
 - `next build` rewrote `tsconfig.json`: `jsx` is now `react-jsx`, `allowJs: true` added, `.next/dev/types/**/*.ts` added to `include`, arrays reformatted. Accepted per rule 8.
 
 ## Open issues
-- `npm audit` reports 3 vulnerabilities (1 moderate, 2 critical) in `@vitest/mocker` and `tinypool`, both dev-only test tooling pulled in by vitest 3.2.7. The fix is vitest 5, which needs Node 22.12+. The user should decide: stay on Node 20 with vitest 3, or move to Node 22+ and vitest 5.
+- ~~`npm audit` vulnerabilities from vitest 3.2.7~~ **Resolved:** after upgrading to vitest 5.0.4, `npm audit` reports 0 vulnerabilities.
 - `next dev` generates `AGENTS.md` in the repo root on every start. It is not in the plan's file list. Deleting it was blocked by the permission classifier, so it was left in place untracked. It can be deleted by the user or kept; it comes back on each `next dev` unless `agentRules: false` is set in `next.config.ts` (not done, because the plan gives that file verbatim).
 - `docs/PLAN.md` says "Do not modify `src/lib/pricing.ts`" from stage 2 on; no change to it is needed so far.
 
 ## Context for the next stage
-- Installed: next 16.4.0 (Turbopack), react / react-dom 19.3.0, typescript 7.0.2, vitest 3.2.7. Dev server runs on port 3000.
+- Installed: next 16.4.0 (Turbopack), react / react-dom 19.3.0, typescript 7.0.2, vitest 5.0.4. Node.js 22 (`.nvmrc`). Dev server runs on port 3000.
 - This Next.js version may differ from older conventions; docs are in `node_modules/next/dist/docs/`.
 - Stage 1 files are not committed yet. Stage 2 requires them to be committed first (`git status` check in `stage-handoff`).
 

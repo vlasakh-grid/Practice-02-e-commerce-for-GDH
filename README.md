@@ -4,7 +4,7 @@ A small Next.js e-commerce demo: a home page, a checkout page and a pricing modu
 
 ## Requirements
 
-- Node.js 20+
+- Node.js 22+ (see `.nvmrc`; `nvm use`)
 - npm
 
 ## Getting started
