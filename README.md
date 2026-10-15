@@ -32,6 +32,6 @@ See [docs/APIs.md](docs/APIs.md) for the `GET /api/products` and `POST /api/chec
 2. The client builds `{ items }` from quantities > 0 and calls `fetch POST /api/checkout`.
 3. The route handler parses JSON and validates the cart (`parseCart`) → 400 on error.
 4. `calculateTotal` in `src/lib/pricing.ts` prices items from the catalog and applies discounts (currently a stub).
-5. *(future)* The order is written to the database at this point.
+5. The route builds the order and `appendOrder` appends it to `data/orders.json` (the file is created if missing).
 6. The response `{ orderId, total }` is returned.
 7. The page shows the confirmation.

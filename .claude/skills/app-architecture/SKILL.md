@@ -41,7 +41,7 @@ checkout/page.tsx --POST {items}--> api/checkout/route.ts
                                       ├─ request.json()      → 400 on bad JSON
                                       ├─ parseCart()         → 400 on invalid cart
                                       ├─ calculateTotal()    (src/lib/pricing.ts)
-                                      ├─ (future) order repository save
+                                      ├─ appendOrder() → data/orders.json
                                       └─ 200 { orderId, total } --> page renders confirmation
 ```
 

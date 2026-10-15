@@ -14,7 +14,25 @@ Returns the product catalog as a JSON array. Prices are in dollars.
 
 ## `POST /api/checkout`
 
-Validates the cart and returns the order total. The server prices the items from the catalog; client prices are never accepted. Nothing is stored.
+Validates the cart and returns the order total. The server prices the items from the catalog; client prices are never accepted. A successful order is appended to `data/orders.json` (created on first use, gitignored); the file holds an array of `Order` records:
+
+```json
+{
+  "id": "3f1c2a52-8d0e-4a57-b0a4-6f3f6a6a9c11",
+  "userId": "guest",
+  "items": [
+    { "productId": "sticker", "name": "Sticker pack", "quantity": 3, "unitPrice": 4.99 },
+    { "productId": "mug", "name": "Coffee mug", "quantity": 1, "unitPrice": 12.5 }
+  ],
+  "subtotal": 27.47,
+  "discount": 0,
+  "total": 27.47,
+  "status": "confirmed",
+  "createdAt": "2026-10-14T12:00:00.000Z"
+}
+```
+
+`subtotal` is the sum of `quantity × unitPrice`, `discount` is the order-level discount from `pricing.ts` and `total = subtotal − discount`. If `data/orders.json` cannot be read as an array or written, the endpoint responds `500` and the file is left untouched. Failed validation (`400`) writes nothing.
 
 Request body:
 
