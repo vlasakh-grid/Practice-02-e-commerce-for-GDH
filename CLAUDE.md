@@ -18,6 +18,12 @@ To continue implementation, follow section 0 of `docs/PLAN.md`.
 - Single test file: `npx vitest run src/lib/pricing.test.ts`
 - Single test by name: `npx vitest run -t "<test name>"`
 
+## Conventions
+
+- **Money is integer cents** (`499`, never `4.99`) in all new code and data: stored fields, function parameters and return values. Floats silently corrupt totals at scale. Convert to dollars only for display (`cents / 100`).
+- This **overrides** the "floating-point dollars" line in `docs/REQUIREMENTS.md` and global rule 6 of `docs/PLAN.md`. Do not edit those docs.
+- Existing frozen code (`src/lib/pricing.ts`) and `data/orders.json` still use dollars; leave them as they are unless the user asks for a migration. Never mix units in one value: name cents fields/params `amount` only when the type or comment says "cents".
+
 ## Architecture
 
 See `ARCHITECTURE.md` (loaded via the `app-architecture` skill).
