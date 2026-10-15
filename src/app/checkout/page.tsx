@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Product } from "@/lib/pricing";
+import type { ProductsResponse } from "@/app/api/products/route";
 import type {
   CheckoutRequest,
   CheckoutSuccess,
@@ -9,7 +9,7 @@ import type {
 } from "@/app/api/checkout/route";
 
 export default function CheckoutPage() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductsResponse>([]);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -24,7 +24,7 @@ export default function CheckoutPage() {
         if (!res.ok) {
           setLoadError("Could not load products.");
         } else {
-          setProducts((await res.json()) as Product[]);
+          setProducts((await res.json()) as ProductsResponse);
         }
       } catch {
         setLoadError("Could not load products.");

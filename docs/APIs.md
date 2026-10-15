@@ -2,7 +2,7 @@
 
 ## `GET /api/products`
 
-Returns the product catalog as a JSON array. Prices are in dollars.
+Returns the product catalog as a JSON array. Prices are in dollars. The response type is `ProductsResponse` in `src/app/api/products/route.ts`.
 
 ```json
 [
@@ -14,7 +14,7 @@ Returns the product catalog as a JSON array. Prices are in dollars.
 
 ## `POST /api/checkout`
 
-Validates the cart and returns the order total. The server prices the items from the catalog; client prices are never accepted. A successful order is appended to `data/orders.json` (created on first use, gitignored); the file holds an array of `Order` records:
+Validates the cart and returns the order total. The server prices the items from the catalog; client prices are never accepted. A successful order is appended to `data/orders.json` (created on first use, gitignored); the file holds an array of `Order` records (the `Order` type in `src/data/orders/types.ts`):
 
 ```json
 {
@@ -32,7 +32,7 @@ Validates the cart and returns the order total. The server prices the items from
 }
 ```
 
-`subtotal` is the sum of `quantity × unitPrice`, `discount` is the order-level discount from `pricing.ts` and `total = subtotal − discount`. If `data/orders.json` cannot be read as an array or written, the endpoint responds `500` and the file is left untouched. Failed validation (`400`) writes nothing.
+`subtotal` is the sum of `quantity × unitPrice`, `discount` is `subtotal − total`, where `total` comes from `calculateTotal` in `pricing.ts`. If `data/orders.json` cannot be read as an array or written, the endpoint responds `500` and the file is left untouched. Failed validation (`400`) writes nothing.
 
 Request body:
 
@@ -51,6 +51,8 @@ Request body:
 ```json
 { "error": "items must be a non-empty array" }
 ```
+
+Validation order: the shape of **all** items is checked first (`items`, object, string `productId`, `quantity`); only then does the order service check that every product exists. For example, `{"items":[{"productId":"nope","quantity":0}]}` returns the `quantity` error, not `Unknown product: nope`.
 
 Possible `error` messages:
 

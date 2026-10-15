@@ -20,4 +20,4 @@ To continue implementation, follow section 0 of `docs/PLAN.md`.
 
 ## Architecture
 
-Defined in the `app-architecture` skill (`.claude/skills/app-architecture/SKILL.md`).
+See `ARCHITECTURE.md` (loaded via the `app-architecture` skill).

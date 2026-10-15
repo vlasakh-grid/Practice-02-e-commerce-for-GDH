@@ -30,8 +30,9 @@ See [docs/APIs.md](docs/APIs.md) for the `GET /api/products` and `POST /api/chec
 
 1. The user clicks "Place order" on `/checkout`.
 2. The client builds `{ items }` from quantities > 0 and calls `fetch POST /api/checkout`.
-3. The route handler parses JSON and validates the cart (`parseCart`) → 400 on error.
-4. `calculateTotal` in `src/lib/pricing.ts` prices items from the catalog and applies discounts (currently a stub).
-5. The route builds the order and `appendOrder` appends it to `data/orders.json` (the file is created if missing).
-6. The response `{ orderId, total }` is returned.
-7. The page shows the confirmation.
+3. The route handler parses JSON and validates the shape of the cart (`parseCart`) → 400 on error.
+4. The route calls `placeOrder` (`src/services/place-order.ts`) with the catalog and the order repository from `src/data/container.ts`.
+5. `placeOrder` loads the products (unknown product → 400), builds the order snapshot and gets the total from `calculateTotal` in `src/lib/pricing.ts` (discounts are currently a stub).
+6. `OrderRepository.save` (the JSON implementation) appends the order to `data/orders.json` (the file is created if missing).
+7. The response `{ orderId, total }` is returned.
+8. The page shows the confirmation.
