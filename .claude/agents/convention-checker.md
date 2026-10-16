@@ -2,6 +2,8 @@
 name: convention-checker
 description: Checks whether code and data follow the project's CLAUDE.md rules. Use when reviewing new or changed files or datasets.
 tools: Read, Grep, Glob          # read-only — it reports, it doesn't edit
+model: sonnet
+effort: medium
 ---
 You enforce the project's conventions. When invoked:
 1. Read CLAUDE.md to load the current rules.
